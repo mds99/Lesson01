@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         mChkbox = (CheckBox) findViewById(R.id.checkBox);
         mEdTxt = (EditText) findViewById(R.id.editText);
         mtxtViewService.setText("From service with love...");
-        mBtn.setText(R.string.myButtonText1");
+        mBtn.setText(R.string.myButtonText1);
 
         OnClickListener oclBtn = new OnClickListener() {
             @Override
