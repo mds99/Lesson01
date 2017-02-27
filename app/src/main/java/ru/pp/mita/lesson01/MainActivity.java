@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import static ru.pp.mita.lesson01.R.layout.activity_main;
 
 //logging library
@@ -23,12 +27,27 @@ public class MainActivity extends AppCompatActivity {
 
     final String LOG_TAG = "mita";
     TextView mtxtView;
+    TextView mtxtViewService;
     Button mBtn,mBtnReset;
     CheckBox mChkbox;
     EditText mEdTxt;
     Integer i;
     String sss;
     public View returnDataView;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +58,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(activity_main);
 
         mtxtView = (TextView) findViewById(R.id.textView);
+        mtxtViewService = (TextView) findViewById(R.id.textView2);
         mBtn = (Button) findViewById(R.id.button);
         mBtnReset = (Button) findViewById(R.id.bntReset);
         mChkbox = (CheckBox) findViewById(R.id.checkBox);
         mEdTxt = (EditText) findViewById(R.id.editText);
+        mtxtViewService.setText("From service with love...");
+        mBtn.setText(R.string.myButtonText1");
 
         OnClickListener oclBtn = new OnClickListener() {
             @Override
@@ -50,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (v.getId()) {
                     case R.id.button:
                         Log.d(LOG_TAG,"Button clicked!");
+                        mBtn.setText(R.string.myButtonText1);
                         mtxtView.setText(R.string.myBtn1Str);
                         mChkbox.setChecked(true);
 
@@ -83,5 +106,10 @@ public class MainActivity extends AppCompatActivity {
 
         mBtn.setOnClickListener(oclBtn);
         mBtnReset.setOnClickListener(oclBtn);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    void OnSvcMessage(MessageEvent event) {
+        mtxtViewService.setText(event.message + "\n" + mtxtViewService.getText());
     }
 }

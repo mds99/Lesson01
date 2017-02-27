@@ -6,6 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +54,6 @@ public class MyFirstService extends Service  {
         someRes = null;
 }
     void onClick(View v) {
-        return;
     }
     void someTask() {
     }
@@ -80,6 +81,7 @@ public class MyFirstService extends Service  {
 
         public void run() {
             Log.d(LOG_TAG, "MyRun#" + startId + " start, time = " + time);
+            EventBus.getDefault().post(new MessageEvent("Starting " + startId ));
             try {
                 TimeUnit.SECONDS.sleep(time);
             } catch (InterruptedException e) {
@@ -95,6 +97,7 @@ public class MyFirstService extends Service  {
 
         void stop() {
             Log.d(LOG_TAG, "MyRun#" + startId + " end, stopSelf(" + startId + ")");
+            EventBus.getDefault().post(new MessageEvent("Ended " + startId ));
             stopSelf(startId);
         }
 
