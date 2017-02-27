@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Lesson01</string>
+    <string name="myStr1">Hello, World!</string>
+    <string name="myBtn1Str">Button clicked!</string>
+    <string name="myBtnStr2">RESET</string>
+    <string name="str_times_clicked">times clicked</string>
+    <string name="myStr2">oh, you\'ve clicked me</string>
+    <string name="myButtonText1">don\'t click me</string>
+</resources>
