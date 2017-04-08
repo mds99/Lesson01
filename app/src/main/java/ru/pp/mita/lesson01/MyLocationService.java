@@ -19,34 +19,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class MyLocationService extends Service  {
-    //public MyFirstService() {
-    //}
-
-/*
-
-// Acquire a reference to the system Location Manager
-    LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
-    // Define a listener that responds to location updates
-    LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            // Called when a new location is found by the network location provider.
-            //makeUseOfNewLocation(location);
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-        public void onProviderEnabled(String provider) {}
-
-        public void onProviderDisabled(String provider) {}
-    };
-
-// Register the listener with the Location Manager to receive location updates
-    locationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 0, 0, locationListener);
-
-*/
     final String LOG_TAG = "mitaLocSvc";
-
+    double locLongitude;
+    double locLatitude;
+    double locAccuracy;
+    LocationManager locationManager;
+    LocationListener locationListener;
 
     //    String cmd = "";
     ExecutorService es;
@@ -56,33 +34,49 @@ public class MyLocationService extends Service  {
         super.onCreate();
         Log.d(LOG_TAG, "onCreate");
         es = Executors.newFixedThreadPool(3);
-        someRes = new Object();
+        // Acquire a reference to the system Location Manager
+        this.locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
+        // Define a listener that responds to location updates
+        this.locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                //makeUseOfNewLocation(location);
+                Log.d(LOG_TAG, "onLocationChanged");
+                EventBus.getDefault().post(new MessageEvent("Location is changed: " + location.getLongitude() + "," + location.getLatitude()  ));
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                Log.d(LOG_TAG, "onStatusChanged");
+
+            }
+
+            public void onProviderEnabled(String provider) {
+                Log.d(LOG_TAG, "onProviderEnabled");
+            }
+
+            public void onProviderDisabled(String provider) {
+                Log.d(LOG_TAG, "onProviderDisabled");
+            }
+        };
+        // Register the listener with the Location Manager to receive location updates
+        //this.locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 50, 10, locationListener);
+        this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 50, 10, locationListener);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "MyLocService onStartCommand " + startId);
-        String cmd = "";
         int time = intent.getIntExtra("time", 1);
-        cmd = intent.getStringExtra("cmd");
-        if ("stop".equals(cmd)) {
-            Log.d(LOG_TAG, "MyLocService onStartCommand STOP CMD " + startId);
-            stopTasks();
-        } else {
-            LocationRun mr = new LocationRun(time, startId);
-            es.execute(mr);
-        }
+        LocationRun mr = new LocationRun(time, startId);
+        es.execute(mr);
         return super.onStartCommand(intent, flags, startId);
     }
 
-    public List<Runnable> stopTasks() {
-        super.onDestroy();
-        return es.shutdownNow();
-    }
     public void onDestroy() {
         super.onDestroy();
+        //this.locationManager.removeUpdates(locationListener);
         Log.d(LOG_TAG, "MyLocService onDestroy");
-        someRes = null;
-}
+    }
     void onClick(View v) {
     }
     void someTask() {

@@ -17,7 +17,7 @@
         </activity>
 
         <service
-            android:name=".MyFirstService"
+            android:name=".MyLocationService"
             android:enabled="true"
             android:exported="false"></service>
     </application>

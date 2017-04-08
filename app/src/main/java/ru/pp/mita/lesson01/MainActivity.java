@@ -1,6 +1,7 @@
 package ru.pp.mita.lesson01;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -16,6 +17,9 @@ import android.util.Log;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
 
 import static ru.pp.mita.lesson01.R.layout.activity_main;
 
@@ -39,12 +43,15 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
+        //startService(new Intent(this, MyLocationService.class).putExtra("time", i));
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
+        SmartLocation.with(MainActivity.this).location().stop();
     }
 
 
@@ -81,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
                         } catch (NumberFormatException e) {
                             i = 0;
                         }
-                        startService(new Intent(v.getContext(), MyFirstService.class).putExtra("time", i));
+                        //Log.d(LOG_TAG,"Start service");
+                        //startService(new Intent(v.getContext(), MyLocationService.class).putExtra("time", i));
 
                         i++;
                         Log.d(LOG_TAG,"Increment");
@@ -106,10 +114,29 @@ public class MainActivity extends AppCompatActivity {
 
         mBtn.setOnClickListener(oclBtn);
         mBtnReset.setOnClickListener(oclBtn);
+
+        SmartLocation.with(MainActivity.this).location()
+                .continuous()
+                .start(new OnLocationUpdatedListener() {
+                    @Override
+                    public void onLocationUpdated(Location location) {
+                        Log.d(LOG_TAG,"OLUS was here");
+                        EventBus.getDefault().post(new MessageEvent("Location is changed: " + location.getLongitude() + "," + location.getLatitude()  ));
+                    }
+                    //Log.d(LOG_TAG,"OLUS was here");
+                });
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     void OnSvcMessage(MessageEvent event) {
         mtxtViewService.setText(event.message + "\n" + mtxtViewService.getText());
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    void OnLocUpdMessage(MessageEvent event) {
+        Log.d(LOG_TAG,"Inside OnLocUpdMessage");
+        mtxtViewService.setText("loc:" + event.message + "\n" + mtxtViewService.getText());
+    }
+
 }
